@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Welcome = ({ username, setUsername, room, setRoom }) => {
+import io from "socket.io-client";
+
+const Welcome = ({ username, setUsername, room, setRoom, setSocket }) => {
   const navigate = useNavigate();
 
   const joinRoom = (e) => {
@@ -12,6 +14,8 @@ const Welcome = ({ username, setUsername, room, setRoom }) => {
       username.trim().length > 0 &&
       room.trim().length > 0 !== "select-room"
     ) {
+      const socket = io.connect("http://localhost:8080");
+      setSocket(socket);
       navigate("/chat", { replace: true });
     } else {
       toast.error("Please enter all the info 🦄", {
@@ -44,7 +48,7 @@ const Welcome = ({ username, setUsername, room, setRoom }) => {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-8">
             <label className="font-bold" htmlFor="room">
               Select room
             </label>
@@ -54,24 +58,17 @@ const Welcome = ({ username, setUsername, room, setRoom }) => {
               id="room"
               onChange={(e) => setRoom(e.target.value)}
             >
-              <option value="select-room">Select Room</option>
               <option value="Room 1">Room 1</option>
               <option value="Room 2">Room 2</option>
             </select>
           </div>
-          <div className="flex">
+          <div className="mb-3">
             <button
               className="bg-slate-100 rounded-lg outline-none p-2 text-purple-blue font-semibold w-full mr-3"
               type="submit"
             >
               Join Room
             </button>
-            <Link
-              className="bg-slate-100 rounded-lg outline-none p-2 text-purple-blue font-semibold w-full text-center"
-              to={"/create"}
-            >
-              Create room
-            </Link>
           </div>
         </form>
       </div>

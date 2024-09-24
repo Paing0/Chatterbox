@@ -5,15 +5,27 @@ import {
   UserGroupIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
-const Room = ({ username, room }) => {
+const Room = ({ username, room, socket }) => {
   const [roomUsers, setRoomUsers] = useState(["user1", "user2", "user3"]);
-  const [receivedMessages, setReceivedMessages] = useState([
-    "aaa",
-    "bbb",
-    "ccc",
-  ]);
+  const [receivedMessages, setReceivedMessages] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    socket.on("message", (data) => {
+      setReceivedMessages((prev) => [...prev, data]);
+    });
+
+    return () => socket.disconnect();
+  }, [socket]);
+
+  const leaveRoom = () => {
+    navigate("/");
+  };
+
   return (
     <section className="flex gap-4 bg-graphite">
       {/* left side */}
@@ -22,7 +34,7 @@ const Room = ({ username, room }) => {
         <div className="mt-10 ps-2">
           <h2 className="flex items-end gap-1 text-xl font-bold">
             <ChatBubbleLeftRightIcon width={30} />
-            Room name
+            Box name
           </h2>
           <p className="bg-white text-purple-blue font-semibold ps-5 py-2 rounded-tl-full rounded-bl-full my-2">
             {room}
@@ -43,6 +55,7 @@ const Room = ({ username, room }) => {
         <button
           className="absolute bottom-0 p-2.5 flex items-center gap-1 w-full mb-2 text-lg"
           type="button"
+          onClick={leaveRoom}
         >
           <ArrowLeftStartOnRectangleIcon width={30} />
           Leave room
@@ -56,10 +69,12 @@ const Room = ({ username, room }) => {
               className="bg-purple-blue p-3 mb-3 w-3/4 rounded-br-3xl rounded-tl-3xl "
               key={i}
             >
-              <p className="text-sm font-medium font-mono">From bot</p>
-              <p className="text-lg font-semibold">{msg}</p>
+              <p className="text-sm font-medium font-mono">
+                From {msg.username}
+              </p>
+              <p className="text-lg font-semibold">{msg.message}</p>
               <p className="text-sm font-medium font-mono text-right">
-                less than a minute ago
+                {formatDistanceToNow(new Date(msg.send_at))}
               </p>
             </div>
           ))}
