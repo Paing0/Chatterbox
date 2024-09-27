@@ -16,6 +16,19 @@ const Room = ({ username, room, socket }) => {
   const [message, setMessage] = useState("");
   const boxDivRef = useRef(null);
 
+  const getOldMessage = async () => {
+    const response = await fetch(`${import.meta.env.VITE_SERVER}/chat/${room}`);
+    if (response.status === 404) {
+      return navigate("/");
+    }
+    const data = await response.json();
+    setReceivedMessages((prev) => [...prev, ...data]);
+  };
+
+  useEffect(() => {
+    getOldMessage();
+  }, []);
+
   useEffect(() => {
     // Send joined user info to server
     socket.emit("joined_room", { username, room });
@@ -123,6 +136,9 @@ const Room = ({ username, room, socket }) => {
             placeholder="Message..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") sendMessage();
+            }}
           />
           <button type="button" onClick={sendMessage}>
             <PaperAirplaneIcon
