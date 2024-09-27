@@ -12,7 +12,8 @@ const Welcome = ({ username, setUsername, room, setRoom, setSocket }) => {
     e.preventDefault();
     if (
       username.trim().length > 0 &&
-      room.trim().length > 0 !== "select-room"
+      room.trim() !== "select-room" &&
+      room.trim().length > 0
     ) {
       const socket = io.connect("http://localhost:8080");
       setSocket(socket);
@@ -58,6 +59,7 @@ const Welcome = ({ username, setUsername, room, setRoom, setSocket }) => {
               id="room"
               onChange={(e) => setRoom(e.target.value)}
             >
+              <option value="select-room">Select Room</option>
               <option value="Room 1">Room 1</option>
               <option value="Room 2">Room 2</option>
             </select>
